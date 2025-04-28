@@ -16,7 +16,7 @@ float SensorUltrasonic::getDistanceCm() {
     digitalWrite(triggerPin, LOW);
 
     long duration = pulseIn(echoPin, HIGH);
-    float distance = (duration * 0.0343) / 2; // 0.0343 cm/µs
-    delay(500);
+    float distance = (duration * 0.0343) / 2; 
+    delay(100);
     return distance;
 }

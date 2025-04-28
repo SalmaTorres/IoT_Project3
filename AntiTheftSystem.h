@@ -10,12 +10,12 @@ class AntiTheftSystem {
     SensorUltrasonic* sensor;
     Buzzer* buzzer;
     PubSubClient* mqttClient;
-    bool alarmaActiva;
+    bool activeAlarm;
 
   public:
     AntiTheftSystem(SensorUltrasonic* sensor, Buzzer* buzzer, PubSubClient* mqttClient);
-    void actualizar();
-    void procesarMensaje(char* topic, byte* payload, unsigned int length);
+    void update();
+    void processMessage(char* topic, byte* payload, unsigned int length);
 };
 
 #endif

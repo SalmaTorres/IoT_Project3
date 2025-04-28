@@ -4,27 +4,23 @@
 #include "Buzzer.h"
 #include "AntiTheftSystem.h"
 
-// Configuración Wi-Fi
 const char* WIFI_SSID = "holi holi holi";
 const char* WIFI_PASS = "acasapete";
 
-// Configuración MQTT
 const char* MQTT_BROKER = "broker.emqx.io";
 const int MQTT_PORT = 1883;
 const char* CLIENT_ID = "a886b9804fca437c9d93201bab7e2d88";
 
-// Crear los objetos globales
 WiFiClient wifiClient;
-PubSubClient mqttClient(wifiClient);  // Aquí pasamos WiFiClient al PubSubClient
+PubSubClient mqttClient(wifiClient);  
 
 SensorUltrasonic sensor(12, 14);
 Buzzer buzzer(25);
-AntiTheftSystem AntiTheftSystem(&sensor, &buzzer, &mqttClient);  // Asegúrate de que AntiTheftSystem acepte PubSubClient*
+AntiTheftSystem AntiTheftSystem(&sensor, &buzzer, &mqttClient); 
 
 void setup() {
   Serial.begin(115200);
 
-  // Conectar al WiFi
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -35,11 +31,9 @@ void setup() {
   Serial.print("IP: ");
   Serial.println(WiFi.localIP());
 
-  // Configurar conexión MQTT
   mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
-  mqttClient.setCallback(callback);  // Función que maneja mensajes recibidos
+  mqttClient.setCallback(callback);  
 
-  // Intentar conectar
   connectToMqtt();
 }
 
@@ -49,11 +43,11 @@ void loop() {
   }
   mqttClient.loop();
 
-  AntiTheftSystem.actualizar();  // Lógica de sensor y buzzer
+  AntiTheftSystem.update();  
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
-  AntiTheftSystem.procesarMensaje(topic, payload, length);
+  AntiTheftSystem.processMessage(topic, payload, length);
 }
 
 void connectToMqtt() {
@@ -65,8 +59,8 @@ void connectToMqtt() {
     } else {
       Serial.print("Fallo conexión. Estado: ");
       Serial.print(mqttClient.state());
-      Serial.println(". Intentando de nuevo en 5 segundos...");
-      delay(5000);
+      Serial.println(". Intentando de nuevo en 3 segundos...");
+      delay(3000);
     }
   }
 }

@@ -1,48 +1,47 @@
 #include "AntiTheftSystem.h"
-#include <Arduino.h>  // Para usar Serial
+#include <Arduino.h>  
 
 AntiTheftSystem::AntiTheftSystem(SensorUltrasonic* sensor, Buzzer* buzzer, PubSubClient* mqttClient) {
   this->sensor = sensor;
   this->buzzer = buzzer;
   this->mqttClient = mqttClient;
-  this->alarmaActiva = false;  // Por defecto DESACTIVADA
+  this->activeAlarm = false;  
 }
 
-void AntiTheftSystem::actualizar() {
-  float distancia = sensor->getDistanceCm();
+void AntiTheftSystem::update() {
+  float distance = sensor->getDistanceCm();
 
-  if (distancia <= 0) {
-    Serial.println("Lectura inválida (distancia 0), ignorando...");
+  if (distance <= 0) {
+    Serial.println("Lectura inválida (distance 0), ignorando...");
     return;
   }
 
-  Serial.print("Distancia medida: ");
-  Serial.print(distancia);
+  Serial.print("distance medida: ");
+  Serial.print(distance);
   Serial.println(" cm");
-    // --- NUEVO: Publicar distancia al broker MQTT
-    char mensaje[10];
-    dtostrf(distancia, 6, 2, mensaje); // convierte float a char array
-    mqttClient->publish("antirrobo/distancia", mensaje);
+    char message[10];
+    dtostrf(distance, 6, 2, message); 
+    mqttClient->publish("antirrobo/distance", message);
 }
 
-void AntiTheftSystem::procesarMensaje(char* topic, byte* payload, unsigned int length) {
-  String mensaje;
+void AntiTheftSystem::processMessage(char* topic, byte* payload, unsigned int length) {
+  String message;
   for (unsigned int i = 0; i < length; i++) {
-    mensaje += (char)payload[i];
+    message += (char)payload[i];
   }
 
-  Serial.print("Mensaje recibido [");
+  Serial.print("message recibido [");
   Serial.print(topic);
   Serial.print("]: ");
-  Serial.println(mensaje);
+  Serial.println(message);
 
   if (String(topic) == "antirrobo/candado") {
-    if (mensaje == "ACTIVAR") {
-      alarmaActiva = true;
+    if (message == "ACTIVAR") {
+      activeAlarm = true;
       buzzer->alarmOn();   // Encender buzzer directamente al ACTIVAR
       Serial.println("Sistema ACTIVADO -> Buzzer encendido.");
-    } else if (mensaje == "DESACTIVAR") {
-      alarmaActiva = false;
+    } else if (message == "DESACTIVAR") {
+      activeAlarm = false;
       buzzer->alarmOff();  // Apagar buzzer directamente al DESACTIVAR
       Serial.println("Sistema DESACTIVADO -> Buzzer apagado.");
     }

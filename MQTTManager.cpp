@@ -17,8 +17,8 @@ void MQTTManager::connect() {
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
-      Serial.println(" trying again in 5 seconds");
-      delay(5000);
+      Serial.println(" trying again in 3 seconds");
+      delay(3000);
     }
   }
 }
